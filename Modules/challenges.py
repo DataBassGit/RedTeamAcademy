@@ -294,3 +294,10 @@ class Challenges:
                 }]
             )
         return reset_text
+
+    def rate_limiter(self, user, time):
+        """
+        Checks the 'user' metadata for 'unixtimestamp', and verifies that the value is
+        at least 'time' minutes old. It then updates the timestamp with the current time.
+        """
+        pass

@@ -4,6 +4,8 @@ This guide will help you navigate the challenge mode of our bot, focusing on how
 
 ## Getting Started
 
+Testing discord: https://discord.gg/xjd2JG9C
+
 To interact with the bot, you can either:
 - Use the `/bot` command in the chat
 - Mention the bot using @
