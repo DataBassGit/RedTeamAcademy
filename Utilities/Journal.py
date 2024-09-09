@@ -8,8 +8,15 @@ import agentforge.tools.SemanticChunk as Chunker
 
 
 class Journal:
+    """
+    Manages the creation, storage, and retrieval of journal entries.
+    """
 
     def __init__(self):
+        """
+        Initialize the Journal with necessary components for storage, parsing, and agent interactions.
+        """
+        print("Journal initializing")
         self.storage = ChromaUtils()
         self.parser = MessageParser
         self.journal = JournalAgent()
@@ -19,8 +26,17 @@ class Journal:
         self.thoughts = None
 
     def do_journal(self):
+        """
+        Execute the full journaling process: write entry, reflect, save, and store in database.
+
+        Returns:
+            str: The generated journal entry.
+        """
+        print("Do Journal")
         self.write_entry()
+        print("Write Entry")
         self.journal_reflect()
+        print("Journal Reflect")
         try:
             path = self.save_journal()
             print(f"File created: {path}")
@@ -30,13 +46,27 @@ class Journal:
         return self.results
 
     def write_entry(self):
+        """
+        Generate a new journal entry using the JournalAgent.
+
+        Returns:
+            str: The generated journal entry.
+        """
         collection = 'journal_log_table'
+        print("Write Entry Collection")
         log = self.storage.load_collection(collection_name=collection)
+        print("Write Entry Log")
         messages = self.parser.format_journal_entries(log)
         self.results = self.journal.run(chat_log=messages)
         return self.results
 
     def journal_reflect(self):
+        """
+        Reflect on the generated journal entry using the JournalThoughtAgent.
+
+        Returns:
+            dict: Parsed thoughts about the journal entry.
+        """
         thoughts = self.journalthought.run(journal_entry=self.results)
         parsed_thoughts = self.parser.parse_lines(thoughts)
         self.thoughts = parsed_thoughts
@@ -44,12 +74,12 @@ class Journal:
 
     def save_journal(self):
         """
-        Writes a string to a unique .md file inside a folder.
+        Save the journal entry to a unique markdown file.
 
         Returns:
             str: The path of the created file.
         """
-        folder_path = '.\\Journal'
+        folder_path = os.path.join(os.getcwd(), 'Journal')
         file_name = datetime.now().strftime('%Y-%m-%d')
         # Ensure the folder exists, create it if not
         os.makedirs(folder_path, exist_ok=True)
@@ -73,6 +103,9 @@ class Journal:
         return self.file_path
 
     def journal_to_db(self):
+        """
+        Store the journal entry and its chunks in the database.
+        """
         # whole entry
         sourceid = self.storage.count_collection('whole_journal_entries')
         source_id_string = [str(sourceid + 1)]
@@ -102,6 +135,12 @@ class Journal:
             self.storage.save_memory(collection_name='journal_chunks_table', data=chunk.content, ids=memory_id, metadata=[metadata])
 
     def load_journals_from_backup(self, folder_path):
+        """
+        Load journal entries from markdown files in a specified folder.
+
+        Args:
+            folder_path (str): Path to the folder containing journal markdown files.
+        """
         for filename in os.listdir(folder_path):
             # Check if the file has a .md extension
             if filename.endswith(".md"):
