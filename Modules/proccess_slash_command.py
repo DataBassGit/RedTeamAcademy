@@ -77,26 +77,17 @@ class SlashCommands:
             """
         else:
             result = self.challenges.parse(args, self.message)
+            print(f"Result in process command: {result}")
             return result
 
     @staticmethod
-    def about(**kwargs):
+    def about():
         """
         About the bot.
         """
         return """
-            Red Team Academy is a prompt injection and jail breaking challenge built for the
-            Basi research team. Its purpose is to provide a structured learning environment 
-            for individuals who want to learn about LLM security.
-            
-            The chat feature is built around the Trinity cognitive architecture, using
-            theory of mind, reflection, and chain of thought, unified by a dynamic memory
-            architecture managed by the LLM.
-            
-            Sourcecode available at https://github.com/DataBassGit/RedTeamAcademy
-            
             This project was built using AgentForge, an open-source AI-driven task automation 
-            system created by DataBass and Ansel. AgentForge is available at 
+            system created by John Smith and Ansel Anselmi. AgentForge is available at 
             https://github.com/DataBassGit/AgentForge under the GNU General Public License v3.0.
             """
 

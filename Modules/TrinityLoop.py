@@ -2,7 +2,7 @@ from CustomAgents.Trinity.ThoughtAgent import ThoughtAgent
 from CustomAgents.Trinity.TheoryAgent import TheoryAgent
 from CustomAgents.Trinity.GenerateAgent import GenerateAgent
 from CustomAgents.Trinity.ReflectAgent import ReflectAgent
-from agentforge.utils.functions.Logger import Logger
+from agentforge.utils.Logger import Logger
 from Utilities.Parsers import MessageParser
 
 
@@ -18,6 +18,7 @@ class Trinity:
         self.chat_history = None
         self.user_history = None
         self.dm_history = None
+        self.category_memory = None
         self.message = None
         self.unformatted_history = None
         self.unformatted_user_history = None
@@ -72,7 +73,7 @@ class Trinity:
 
         self.run_agent('thought')
         self.memory.recall_journal_entry(self.message['message'], self.cognition['thought']["Categories"], 3)
-        self.memory.recall_categories(self.message['message'], self.cognition['thought']["Categories"], 3)
+        self.category_memory = self.memory.recall_categories(self.message['message'], self.cognition['thought']["Categories"], 3)
         self.cognition['scratchpad'] = self.memory.get_scratchpad(self.message['author'])
         self.run_agent('theory')
 
@@ -112,14 +113,37 @@ class Trinity:
         # Rerank implementation
         queries_list = [self.unformatted_user_history, self.unformatted_history, self.unformatted_dm_history]
         queries = []
-        for i in queries_list:
-            if i is not None:
-                queries.append(i)
+        if queries_list:
+            for result in queries_list:
+                if result is not None:
+                    # Create a standardized entry for each document
+                    for i in range(len(result['documents'])):
+                        normalized_entry = {
+                            'documents': [result['documents'][i]],
+                            'ids': [result['ids'][min(i, len(result['ids']) - 1)]],
+                            'metadatas': [result['metadatas'][i]]
+                        }
+                        queries.append(normalized_entry)
+            # for i in queries_list:
+            #     if i is not None:
+            #         queries.append(i)
+        if self.category_memory is not None:
+            for result in queries_list:
+                if result is not None:
+                    # Create a standardized entry for each document
+                    for i in range(len(result['documents'])):
+                        normalized_entry = {
+                            'documents': [result['documents'][i]],
+                            'ids': [result['ids'][min(i, len(result['ids']) - 1)]],
+                            'metadatas': [result['metadatas'][i]]
+                        }
+                        queries.append(normalized_entry)
         if self.cognition['thought']:
             query = self.cognition['thought']
         else:
             query = self.message['message']
-        self.cognition['reranked_memories'] = self.memory.combine_and_rerank(queries, query, 5)
+        if queries is not None:
+            self.cognition['reranked_memories'] = self.memory.combine_and_rerank(queries, query, 5)
 
         # agent.load_additional_data(self.messages, self.chosen_msg_index, self.chat_history,
         #                            self.user_history, memories, self.cognition)

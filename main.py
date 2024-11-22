@@ -1,6 +1,6 @@
 # main.py
 
-from agentforge.utils.guiutils.discord_client import DiscordClient
+from agentforge.utils.DiscordClient import DiscordClient
 import time
 import yaml
 from Modules.proccess_slash_command import SlashCommands
@@ -44,11 +44,11 @@ class Run:
                         # Check if this is a /bot command
                         if function_name:
                             response = self.do_command.parse(message)
-                            # self.client.send_message(channel_id, response)\
+                            # self.client.send_message(channel_id, response)
                             self.client.send_embed(
                                 channel_id=channel_id,
                                 title="Command Result",
-                                fields=[("Result", response)],
+                                fields=[("Result", f"{response}")],
                                 color='blue',
                                 image_url=None)
 
